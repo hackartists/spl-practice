@@ -9,8 +9,23 @@
 
 * Upgrade
 + If you want to save logs, you can set =VERSION= environment.
+  + If you set =VERSION=, it write a log file in =build/program-{VERSION}=.
 
 #+begin_src bash
    make upgrade
+  # VERSION=2 make upgrade
 #+end_src
 
+
+* Airdrop
+
+** From Website
++ Twice per an hour
++ https://faucet.solana.com/
+
+** Command line
++ Once per an hour
+
+#+begin_src bash
+  make airdrop
+#+end_src

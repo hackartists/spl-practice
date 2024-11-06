@@ -1,5 +1,6 @@
 PROGRAM_ID ?= $(shell cat PROGRAM_ID)
 BUFFER_KEY ?= 5vWmH4dKgCpqrSQDNtMhR1HDHcrJMuMLbkAMgzCX9JKU
+ADDRESS ?= $(shell solana address)
 VERSION ?= 1
 
 .PHONY: build
@@ -23,3 +24,9 @@ build/program-%: build
 upgrade: build/program-$(VERSION)
 	$(eval BUFFER_KEY=$(shell cat build/program-$(VERSION)/program-id))
 	solana program upgrade $(BUFFER_KEY) $(PROGRAM_ID) --keypair ~/.config/solana/id.json
+
+clean:
+	rm -rf dist build PROGRAM_ID
+
+airdrop:
+	solana airdrop 5 $(ADDRESS)
