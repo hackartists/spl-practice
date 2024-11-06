@@ -2,6 +2,13 @@ PROGRAM_ID ?= $(shell cat PROGRAM_ID)
 BUFFER_KEY ?= 5vWmH4dKgCpqrSQDNtMhR1HDHcrJMuMLbkAMgzCX9JKU
 ADDRESS ?= $(shell solana address)
 VERSION ?= 1
+PAYER_KEYPAIR_FILE ?= ~/.config/solana/id.json
+
+BUILD_ENV ?= PROGRAM_ID=$(PROGRAM_ID) BUFFER_KEY=$(BUFFER_KEY) ADDRESS=$(ADDRESS) VERSION=$(VERSION) PAYER_KEYPAIR_FILE=$(PAYER_KEYPAIR_FILE)
+
+.PHONY: run
+run:
+	$(BUILD_ENV) cargo run -p app
 
 .PHONY: build
 build:
