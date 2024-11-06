@@ -27,7 +27,7 @@ pub fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let mut greeting = GreetingAccount::try_from_slice(&account.data.borrow())?;
+    let mut greeting = AccountState::try_from_slice(&account.data.borrow())?;
     greeting.counter += 1;
     greeting.serialize(&mut &mut account.data.borrow_mut()[..])?;
 
@@ -35,6 +35,6 @@ pub fn process_instruction(
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct GreetingAccount {
+pub struct AccountState {
     pub counter: u32,
 }

@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use borsh::BorshDeserialize;
-use expiry_token::GreetingAccount;
+use expiry_token::AccountState;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
@@ -52,7 +52,7 @@ fn main() -> Result<()> {
     let counter = cli.get_account(&pda)?;
     println!(
         "Counter: {:?}",
-        GreetingAccount::try_from_slice(&counter.data)?.counter
+        AccountState::try_from_slice(&counter.data)?.counter
     );
     Ok(())
 }
