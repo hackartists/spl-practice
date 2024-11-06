@@ -1,0 +1,16 @@
+#+title: Solana Expiry Token
+
+* Deployment
++ It shows =Program Id= and update =PROGRAM_ID= file.
+
+#+begin_src bash
+  make deploy
+#+end_src
+
+* Upgrade
++ If you want to save logs, you can set =VERSION= environment.
+
+#+begin_src bash
+   make upgrade
+#+end_src
+

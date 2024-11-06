@@ -1,7 +1,6 @@
-[package]
-name = "solana-expiry-token"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+        "program"
+]
 
-[dependencies]
-solana-program = "2.1.0"
+resolver = "2"
