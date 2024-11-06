@@ -1,5 +1,27 @@
 #+title: Solana Expiry Token
 
+* Setup
+
+** Install Solana CLI and tools
++ Install solana CLI
+
+#+begin_src sh
+  sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+#+end_src
+
+** Configuring Rust version
++ Check Rust version
+#+begin_src sh
+  rustc --version
+#+end_src
+
++ Re-init =agave=
+  + Below is an example for rust =1.82.0=
+
+#+begin_src sh
+  agave-install-init 1.82.0
+#+end_src
+
 * Deployment
 + It shows =Program Id= and update =PROGRAM_ID= file.
 
