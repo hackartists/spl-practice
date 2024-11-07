@@ -17,7 +17,7 @@ solana_program::entrypoint!(process_instruction);
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    _instruction_data: &[u8],
+    instruction_data: &[u8],
 ) -> ProgramResult {
     // use spl_token::{error::TokenError, processor::Processor};
     // if let Err(error) = Processor::process(program_id, accounts, instruction_data) {
@@ -25,6 +25,10 @@ pub fn process_instruction(
     //     error.print::<TokenError>();
     //     return Err(error);
     // }
+    if instruction_data.is_empty() {
+        return Ok(());
+    }
+
     let accounts_iter = &mut accounts.iter();
     let account = next_account_info(accounts_iter)?;
 
@@ -33,8 +37,18 @@ pub fn process_instruction(
     }
 
     let mut greeting = AccountState::try_from_slice(&account.data.borrow())?;
-    greeting.counter += 1;
+    match CustomInstruction::try_from_slice(instruction_data)? {
+        CustomInstruction::Add(value) => greeting.counter += value,
+        CustomInstruction::Sub(value) => greeting.counter -= value,
+    };
+
     greeting.serialize(&mut &mut account.data.borrow_mut()[..])?;
 
     Ok(())
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub enum CustomInstruction {
+    Add(u32),
+    Sub(u32),
 }
