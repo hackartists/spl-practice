@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use expiry_token::AccountState;
+use expiry_token::states::account_state::AccountState;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
