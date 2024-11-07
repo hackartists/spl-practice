@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use borsh::BorshDeserialize;
 use expiry_token::AccountState;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
@@ -43,17 +42,14 @@ fn main() -> Result<()> {
         }
     };
 
-    let pda = get_pda_account(&program_id, &user.pubkey(), "greeting")?;
-    if let Err(_) = cli.get_account(&pda) {
-        create_account(&cli, &program_id, &payer, &user, &pda, "greeting")?;
-    }
+    let account_state = AccountState::get_or_create_account(&cli, &program_id, &user, &payer)?;
+    println!("Counter: {:?}", account_state.counter);
+    let pda = AccountState::get_pda(&program_id, &user.pubkey())?;
+
     say_hello(&cli, &program_id, &user, &pda, &payer)?;
 
-    let counter = cli.get_account(&pda)?;
-    println!(
-        "Counter: {:?}",
-        AccountState::try_from_slice(&counter.data)?.counter
-    );
+    let account_state = AccountState::get_or_create_account(&cli, &program_id, &user, &payer)?;
+    println!("Counter: {:?}", account_state.counter);
     Ok(())
 }
 
@@ -83,39 +79,4 @@ fn say_hello(
     cli.send_and_confirm_transaction(&tx)?;
 
     Ok(())
-}
-
-fn create_account(
-    cli: &RpcClient,
-    program_id: &Pubkey,
-    payer: &Keypair,
-    user: &Keypair,
-    pda: &Pubkey,
-    data_type: &str,
-) -> Result<()> {
-    let rent_fee = cli.get_minimum_balance_for_rent_exemption(4)?;
-    let create_account_instruction = system_instruction::create_account_with_seed(
-        &payer.pubkey(),
-        pda,
-        &user.pubkey(),
-        data_type,
-        rent_fee,
-        4,
-        program_id,
-    );
-
-    let transaction = Transaction::new_signed_with_payer(
-        &[create_account_instruction],
-        Some(&payer.pubkey()),
-        &[payer, user],
-        cli.get_latest_blockhash()?,
-    );
-    cli.send_and_confirm_transaction(&transaction)?;
-
-    println!("Created account: {:?}", pda);
-    Ok(())
-}
-
-fn get_pda_account(program_id: &Pubkey, user: &Pubkey, data_type: &str) -> Result<Pubkey> {
-    Ok(Pubkey::create_with_seed(user, data_type, program_id)?)
 }
