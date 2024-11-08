@@ -9,14 +9,9 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 borsh = { version = "1.5.1", features = ["borsh-derive"] }
-solana-client = { version = "2.1.0", optional = true }
 solana-program = "2.1.0"
-solana-sdk = { version = "2.1.0", optional = true }
 spl-token = { version = "7.0.0", features = ["no-entrypoint"] }
 
 [features]
 default = []
 no-entrypoint = []
-solana-sdk = ["dep:solana-sdk"]
-solana-client = ["dep:solana-client"]
-app = ["solana-sdk", "solana-client"]

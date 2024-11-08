@@ -30,19 +30,19 @@ pub fn process_instruction(
     }
 
     let accounts_iter = &mut accounts.iter();
-    let account = next_account_info(accounts_iter)?;
+    let pda = next_account_info(accounts_iter)?;
 
-    if account.owner != program_id {
+    if pda.owner != program_id {
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let mut greeting = AccountState::try_from_slice(&account.data.borrow())?;
+    let mut greeting = AccountState::try_from_slice(&pda.data.borrow())?;
     match CustomInstruction::try_from_slice(instruction_data)? {
         CustomInstruction::Add(value) => greeting.counter += value,
         CustomInstruction::Sub(value) => greeting.counter -= value,
     };
 
-    greeting.serialize(&mut &mut account.data.borrow_mut()[..])?;
+    greeting.serialize(&mut &mut pda.data.borrow_mut()[..])?;
 
     Ok(())
 }
