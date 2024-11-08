@@ -1,7 +1,10 @@
 use std::error::Error;
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use expiry_token::{states::account_state::AccountState, CustomInstruction};
+use expiry_token::{
+    states::{account_state::AccountState, State},
+    CustomInstruction,
+};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
@@ -43,18 +46,18 @@ fn main() -> Result<()> {
         }
     };
 
-    let account_state = get_or_create_account(&cli, &program_id, &user, &payer)?;
+    let account_state: AccountState = get_or_create_account(&cli, &program_id, &user, &payer)?;
     println!("Counter: {:?}", account_state.counter);
     let pda = AccountState::get_pda(&program_id, &user.pubkey())?;
 
     say_hello(&cli, &program_id, &user, &pda, &payer)?;
 
-    let account_state = get_or_create_account(&cli, &program_id, &user, &payer)?;
+    let account_state: AccountState = get_or_create_account(&cli, &program_id, &user, &payer)?;
     println!("Counter: {:?}", account_state.counter);
 
     sub(&cli, &program_id, &user, &pda, &payer)?;
 
-    let account_state = get_or_create_account(&cli, &program_id, &user, &payer)?;
+    let account_state: AccountState = get_or_create_account(&cli, &program_id, &user, &payer)?;
     println!("Counter: {:?}", account_state.counter);
     Ok(())
 }
@@ -119,43 +122,43 @@ fn sub(
     Ok(())
 }
 
-pub fn get_or_create_account(
+pub fn get_or_create_account<T>(
     cli: &solana_client::rpc_client::RpcClient,
     program_id: &solana_sdk::pubkey::Pubkey,
     user: &solana_sdk::signature::Keypair,
     payer: &solana_sdk::signature::Keypair,
-) -> Result<AccountState> {
+) -> Result<T>
+where
+    T: State + BorshDeserialize + BorshSerialize,
+{
     use solana_sdk::signer::Signer;
 
     let pda = AccountState::get_pda(program_id, &user.pubkey())?;
+
     Ok(match cli.get_account(&pda) {
-        Ok(account) => AccountState::try_from_slice(&account.data),
+        Ok(account) => T::try_from_slice(&account.data),
         Err(_) => {
-            create_account(
-                cli,
-                program_id,
-                user,
-                payer,
-                &pda,
-                AccountState::state_type(),
-            )?;
+            create_account::<T>(cli, program_id, user, payer, &pda, T::state_type())?;
             let account = cli.get_account(&pda)?;
-            AccountState::try_from_slice(&account.data)
+            T::try_from_slice(&account.data)
         }
     }?)
 }
 
-fn create_account(
+fn create_account<T>(
     cli: &solana_client::rpc_client::RpcClient,
     program_id: &solana_sdk::pubkey::Pubkey,
     user: &solana_sdk::signature::Keypair,
     payer: &solana_sdk::signature::Keypair,
     pda: &solana_sdk::pubkey::Pubkey,
     data_type: &str,
-) -> Result<()> {
+) -> Result<()>
+where
+    T: State,
+{
     use solana_sdk::signer::Signer;
 
-    let size: usize = AccountState::size();
+    let size: usize = T::size();
     let rent_fee = cli.get_minimum_balance_for_rent_exemption(size)?;
     let create_account_instruction = solana_sdk::system_instruction::create_account_with_seed(
         &payer.pubkey(),

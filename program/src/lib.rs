@@ -7,9 +7,7 @@ use solana_program::{
 };
 use states::account_state::AccountState;
 
-pub mod states {
-    pub mod account_state;
-}
+pub mod states;
 
 #[cfg(not(feature = "no-entrypoint"))]
 solana_program::entrypoint!(process_instruction);
